@@ -30,7 +30,7 @@ export default function Following({
 
         setFollowing(res.data);
       } catch (error) {
-        alert("Error Loading Followers");
+        console.error("Error Loading Followers");
       }
       setLoading(false);
     };

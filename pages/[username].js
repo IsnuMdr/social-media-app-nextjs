@@ -54,7 +54,7 @@ function ProfilePage({
 
         setPosts(res.data);
       } catch (error) {
-        alert("Error Loading Posts");
+        console.error("Error Loading Posts");
       }
 
       setLoading(false);

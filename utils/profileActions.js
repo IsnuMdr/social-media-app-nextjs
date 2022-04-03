@@ -18,7 +18,7 @@ export const followUser = async (userToFollowId, setUserFollowStats) => {
       following: [...prev.following, { user: userToFollowId }],
     }));
   } catch (error) {
-    alert(catchErrors(error));
+    console.error(catchErrors(error));
   }
 };
 
@@ -33,7 +33,7 @@ export const unfollowUser = async (userToUnfollowId, setUserFollowStats) => {
       ),
     }));
   } catch (error) {
-    alert(catchErrors(error));
+    console.error(catchErrors(error));
   }
 };
 
@@ -70,7 +70,7 @@ export const passwordUpdate = async (setSuccess, userPasswords) => {
 
     setSuccess(true);
   } catch (error) {
-    alert(catchErrors(error));
+    console.error(catchErrors(error));
   }
 };
 
@@ -85,6 +85,6 @@ export const toggleMessagePopup = async (
     setPopupSetting(!popupSetting);
     setSuccess(true);
   } catch (error) {
-    alert(catchErrors(error));
+    console.error(catchErrors(error));
   }
 };

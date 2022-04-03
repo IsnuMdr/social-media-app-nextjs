@@ -41,7 +41,7 @@ function Index({ user, postsData, errorLoading }) {
       setPosts((prev) => [...prev, ...res.data]);
       setPageNumber((prev) => prev + 1);
     } catch (error) {
-      alert("Error fetching Posts");
+      console.error("Error fetching Posts");
     }
   };
 
