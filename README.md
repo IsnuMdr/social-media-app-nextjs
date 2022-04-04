@@ -23,11 +23,11 @@ Configure your URL Cloudinary in `next.config.js`
   CLOUDINARY_URL: "YOUR_URL_CLOUDINARY",
 ```
 
-Configure your nodemailer in ./api/reset.js
+Configure your email for nodemailer in `config.env`
 
 ```env
-  user: "YOUR_EMAIL"
-  pass: "YOUR_EMAIL_PASSWORD"
+  YOUR_EMAIL: "YOUR_EMAIL"
+  YOUR_EMAIL_PASSWORD: "YOUR_EMAIL_PASSWORD"
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
