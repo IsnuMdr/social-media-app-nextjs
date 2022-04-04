@@ -3,17 +3,17 @@ const router = express.Router();
 const UserModel = require("../models/UserModel");
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
-const sendGridTransport = require("nodemailer-sendgrid-transport");
 const crypto = require("crypto");
 const baseUrl = require("../utils/baseUrl");
 const isEmail = require("validator/lib/isEmail");
-const options = {
-  auth: {
-    api_key: process.env.sendGrid_api
-  }
-};
 
-const transporter = nodemailer.createTransport(sendGridTransport(options));
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.YOUR_EMAIL,
+    pass: process.env.POUR_EMAIL_PASSWORD,
+  },
+});
 
 // CHECK USER EXISTS AND SEND EMAIL FOR RESET PASSWORD
 router.post("/", async (req, res) => {
@@ -40,16 +40,20 @@ router.post("/", async (req, res) => {
     const href = `${baseUrl}/reset/${token}`;
 
     const mailOptions = {
+      from: "socialmediaapp8@gmail.com",
       to: user.email,
-      from: "singh.inder5880@gmail.com",
       subject: "Hi there! Password reset request",
+      // text: `Hey ${user.name.split(" ")[0].toString()}`,
       html: `<p>Hey ${user.name
         .split(" ")[0]
         .toString()}, There was a request for password reset. <a href=${href}>Click this link to reset the password </a>   </p>
-      <p>This token is valid for only 1 hour.</p>`
+      <p>This token is valid for only 1 hour.</p>`,
     };
 
-    transporter.sendMail(mailOptions, (err, info) => err && console.log(err));
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) console.error(err);
+      console.log("Email sent: " + info.response);
+    });
 
     return res.status(200).send("Email sent successfully");
   } catch (error) {
