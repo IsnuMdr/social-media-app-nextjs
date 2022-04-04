@@ -1,5 +1,5 @@
 {
-  "name": "inder-social-media",
+  "name": "social-media-app-nextjs",
   "version": "0.1.0",
   "private": false,
   "scripts": {
@@ -8,7 +8,7 @@
     "start": "NODE_ENV=production node server.js"
   },
   "dependencies": {
-    "@artsy/fresnel": "^1.2.2",
+    "@artsy/fresnel": "^1.9.0",
     "axios": "^0.21.0",
     "bcryptjs": "^2.4.3",
     "crypto": "^1.0.1",
@@ -20,11 +20,11 @@
     "moment": "^2.24.0",
     "mongoose": "^5.9.14",
     "next": "^10.0.3",
-    "nodemailer": "^6.4.8",
-    "nodemailer-sendgrid-transport": "^0.2.0",
+    "nodemailer": "^6.7.3",
     "nookies": "^2.3.0",
     "nprogress": "^0.2.0",
     "react": "16.13.1",
+    "react-cropper": "^2.1.8",
     "react-dom": "16.13.1",
     "react-infinite-scroll-component": "^5.1.0",
     "react-moment": "^0.9.7",

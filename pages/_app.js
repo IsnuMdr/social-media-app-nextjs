@@ -6,6 +6,7 @@ import { redirectUser } from "../utils/authUser";
 import Layout from "../components/Layout/Layout";
 import "react-toastify/dist/ReactToastify.css";
 import "semantic-ui-css/semantic.min.css";
+import "cropperjs/dist/cropper.css";
 
 class MyApp extends App {
   static async getInitialProps({ Component, ctx }) {
@@ -17,8 +18,10 @@ class MyApp extends App {
       ctx.pathname === "/[username]" ||
       ctx.pathname === "/notifications" ||
       ctx.pathname === "/post/[postId]" ||
-      ctx.pathname === "/messages";
+      ctx.pathname === "/messages" ||
+      ctx.pathname === "/search";
     if (!token) {
+      destroyCookie(ctx, "token");
       protectedRoutes && redirectUser(ctx, "/login");
     }
     //
@@ -29,7 +32,7 @@ class MyApp extends App {
 
       try {
         const res = await axios.get(`${baseUrl}/api/auth`, {
-          headers: { Authorization: token }
+          headers: { Authorization: token },
         });
 
         const { user, userFollowStats } = res.data;

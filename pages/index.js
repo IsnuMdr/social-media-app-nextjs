@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import io from "socket.io-client";
 import axios from "axios";
 import baseUrl from "../utils/baseUrl";
 import CreatePost from "../components/Post/CreatePost";
@@ -13,6 +14,10 @@ import {
   EndMessage,
 } from "../components/Layout/PlaceHolderGroup";
 import cookie from "js-cookie";
+import getUserInfo from "../utils/getUserInfo";
+import MessageNotificationModal from "../components/Home/MessageNotificationModal";
+import newMsgSound from "../utils/newMsgSound";
+import NotificationPortal from "../components/Home/NotificationPortal";
 
 function Index({ user, postsData, errorLoading }) {
   const [posts, setPosts] = useState(postsData || []);
@@ -21,8 +26,45 @@ function Index({ user, postsData, errorLoading }) {
 
   const [pageNumber, setPageNumber] = useState(2);
 
+  const socket = useRef();
+
+  const [newMessageReceived, setNewMessageReceived] = useState(null);
+  const [newMessageModal, showNewMessageModal] = useState(false);
+
+  const [newNotification, setNewNotification] = useState(null);
+  const [notificationPopup, showNotificationPopup] = useState(false);
+
   useEffect(() => {
+    if (!socket.current) {
+      socket.current = io(baseUrl);
+    }
+
+    if (socket.current) {
+      socket.current.emit("join", { userId: user._id });
+
+      socket.current.on("newMsgReceived", async ({ newMsg }) => {
+        const { name, profilePicUrl } = await getUserInfo(newMsg.sender);
+
+        if (user.newMessagePopup) {
+          setNewMessageReceived({
+            ...newMsg,
+            senderName: name,
+            senderProfilePic: profilePicUrl,
+          });
+          showNewMessageModal(true);
+        }
+        newMsgSound(name);
+      });
+    }
+
     document.title = `Welcome, ${user.name.split(" ")[0]}`;
+
+    return () => {
+      if (socket.current) {
+        socket.current.emit("disconnect");
+        socket.current.off();
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -41,36 +83,70 @@ function Index({ user, postsData, errorLoading }) {
       setPosts((prev) => [...prev, ...res.data]);
       setPageNumber((prev) => prev + 1);
     } catch (error) {
-      console.error("Error fetching Posts");
+      alert("Error fetching Posts");
     }
   };
 
+  useEffect(() => {
+    if (socket.current) {
+      socket.current.on(
+        "newNotificationReceived",
+        ({ name, profilePicUrl, username, postId }) => {
+          setNewNotification({ name, profilePicUrl, username, postId });
+
+          showNotificationPopup(true);
+        }
+      );
+    }
+  }, []);
+
   return (
     <>
+      {notificationPopup && newNotification !== null && (
+        <NotificationPortal
+          newNotification={newNotification}
+          notificationPopup={notificationPopup}
+          showNotificationPopup={showNotificationPopup}
+        />
+      )}
+
       {showToastr && <PostDeleteToastr />}
+
+      {newMessageModal && newMessageReceived !== null && (
+        <MessageNotificationModal
+          socket={socket}
+          showNewMessageModal={showNewMessageModal}
+          newMessageModal={newMessageModal}
+          newMessageReceived={newMessageReceived}
+          user={user}
+        />
+      )}
+
       <Segment>
         <CreatePost user={user} setPosts={setPosts} />
-        {posts.length === 0 || errorLoading ? (
-          <NoPosts />
-        ) : (
-          <InfiniteScroll
-            hasMore={hasMore}
-            next={fetchDataOnScroll}
-            loader={<PlaceHolderPosts />}
-            endMessage={<EndMessage />}
-            dataLength={posts.length}
-          >
-            {posts.map((post) => (
+
+        <InfiniteScroll
+          hasMore={hasMore}
+          next={fetchDataOnScroll}
+          loader={<PlaceHolderPosts />}
+          endMessage={<EndMessage />}
+          dataLength={posts.length}
+        >
+          {posts.length === 0 || errorLoading ? (
+            <NoPosts />
+          ) : (
+            posts.map((post) => (
               <CardPost
+                socket={socket}
                 key={post._id}
                 post={post}
                 user={user}
                 setPosts={setPosts}
                 setShowToastr={setShowToastr}
               />
-            ))}
-          </InfiniteScroll>
-        )}
+            ))
+          )}
+        </InfiniteScroll>
       </Segment>
     </>
   );
