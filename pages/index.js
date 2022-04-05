@@ -152,7 +152,7 @@ function Index({ user, postsData, errorLoading }) {
   );
 }
 
-Index.getInitialProps = async (ctx) => {
+export const getServerSideProps = async (ctx) => {
   try {
     const { token } = parseCookies(ctx);
 
@@ -161,9 +161,9 @@ Index.getInitialProps = async (ctx) => {
       params: { pageNumber: 1 },
     });
 
-    return { postsData: res.data };
+    return { props: { postsData: res.data } };
   } catch (error) {
-    return { errorLoading: true };
+    return { props: { errorLoading: true } };
   }
 };
 
